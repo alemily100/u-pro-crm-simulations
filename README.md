@@ -12,4 +12,5 @@ This project evaluates the operating characteristics of the novel U-PRO-CRM desi
 * **benchmark_run.R** - code for Section 4.3: functions and code to evaluate a benchmark[2] for the U-PRO-CRM design
 
 [1] Lee SM, Lu X, Cheng B. Incorporating patient-reported outcomes in dose-finding clinical trials. Stat Med. 2020 Feb 10;39(3):310-325. doi: 10.1002/sim.8402. Epub 2019 Dec 3. PMID: 31797421; PMCID: PMC8411935.
+
 [2] Cheung YK. Simple benchmark for complex dose finding studies. Biometrics. 2014 Jun;70(2):389-97. doi: 10.1111/biom.12158. Epub 2014 Feb 25. PMID: 24571185; PMCID: PMC4061271.
