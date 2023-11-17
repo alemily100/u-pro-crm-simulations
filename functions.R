@@ -227,7 +227,6 @@ trial_sim_original<- function(u_skeleton, v_skeleton, sample,no_enrolled, phi, t
    p_p<-v_skeleton^est_p$maximum
    rec_dose<-min(which.min(abs(p_c-target_clin)), which.min(abs(p_p-target_pat)))
   ifelse(rec_dose>max(M[,2]), current_dose<-max(M[,2])+1, current_dose<-rec_dose)
-  unlink(file.path("C:/Users/ealger/AppData/Local/Temp", "Rtmp*"), recursive = T)
   optimal_dose<- min(which.min(abs(true_tox_c-target_clin)), which.min(abs(true_tox_p-target_pat)))
   mtd_assigned<-sum(M[,2]==optimal_dose)/sample
   overdosed<- sum(M[,2]>optimal_dose)/sample
@@ -308,7 +307,6 @@ trial_sim_utility<- function(u_skeleton, v_skeleton, alpha, sample,no_enrolled, 
     p_c<-u_skeleton^est_c$maximum 
     p_p<-v_skeleton^est_p$maximum
     rec_dose<-which.min(mapply(function(p,c) optimise(distance, c(0,target_pat), alpha=alpha, pred_x= p, pred_y=c, patient_target_DLT=target_pat, clinician_target_DLT=target_clin)$objective, p=p_p, c=p_c))
-    #rec_dose<-min(which.min(abs(p_c-target_clin)), which.min(abs(p_p-target_pat)))
     ifelse(rec_dose>max(M[,2]), current_dose<-max(M[,2])+1, current_dose<-rec_dose)
     val<-t(sapply(rep(current_dose, times=no_enrolled), function (k) time_to_dlt(k,true_tox_c, true_tox_p, phi)))
     M<-truncated_matrix(no_enrolled, val, M, current_dose)
@@ -320,7 +318,6 @@ trial_sim_utility<- function(u_skeleton, v_skeleton, alpha, sample,no_enrolled, 
    p_p<-v_skeleton^est_p$maximum
    rec_dose<-which.min(mapply(function(p,c) optimise(distance, c(0,target_pat), alpha=alpha, pred_x= p, pred_y=c, patient_target_DLT=target_pat, clinician_target_DLT=target_clin)$objective, p=p_p, c=p_c))
   ifelse(rec_dose>max(M[,2]), current_dose<-max(M[,2])+1, current_dose<-rec_dose)
-  unlink(file.path("C:/Users/ealger/AppData/Local/Temp", "Rtmp*"), recursive = T)
   optimal_dose<- min(which.min(abs(true_tox_c-target_clin)), which.min(abs(true_tox_p-target_pat)))
   mtd_assigned<-sum(M[,2]==optimal_dose)/sample
   overdosed<- sum(M[,2]>optimal_dose)/sample
