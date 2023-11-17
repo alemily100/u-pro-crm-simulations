@@ -2,7 +2,7 @@
 This repository contains the code used to simulate results for the paper **U-PRO-CRM: Designing patient-centred dose-finding trials using Patient-reported Outcomes**. 
 
 ## Background 
-This project evaluates the operating characteristics of the novel U-PRO-CRM design under simulation scenarios where it is compared to the published PRO-CRM design and benchmark. 
+This project evaluates the operating characteristics of the novel U-PRO-CRM design under simulation scenarios where it is compared to the published PRO-CRM design and a benchmark[1]. 
 
 ## Description of R files
 * **functions.R** - code for Section 4.2; functions required to generate trials and identify the MTD for 5,000 simulations in parallel. 
