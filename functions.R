@@ -148,6 +148,7 @@ distance<-function(alpha, x, pred_x, pred_y,patient_target_DLT,clinician_target_
 ##############################trial_sim_original####################################
 #Description: Generate MTD selection for one generated trial under original PRO-CRM decision criteria 
 
+#Input:
 #u_skeleton - skeleton for C-DLT
 #v_skeleton - skeleton for P-DLT
 #sample - overall sample size of trial 
@@ -238,6 +239,7 @@ trial_sim_original<- function(u_skeleton, v_skeleton, sample,no_enrolled, phi, t
 ##############################trial_sim_utility####################################
 #Description: Generate MTD selection for one generated trial under U-PRO-CRM decision criteria 
 
+#Input:
 #u_skeleton - skeleton for C-DLT
 #v_skeleton - skeleton for P-DLT
 #alpha - alpha used to define the utility curve  
