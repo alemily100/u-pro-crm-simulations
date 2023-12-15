@@ -142,12 +142,12 @@ true_tox_pro<- rbind.data.frame(c(0.17, 0.18, 0.35, 0.50, 0.65), c(0.1, 0.15, 0.
 dimnames(true_tox_pro)[[2]]<- c( "1","2", "3", "4", "5")
 dimnames(true_tox_pro)[[1]]<- c("Sc 1", "Sc 2", "Sc 3", "Sc 4", "Sc 5", "Sc 6", "Sc 7","Sc 8", "Sc 9") 
 
-
-phi<- 0.1
+set.seed(2115)
+phi<- 0.9
 alpha<- 15
 sample_size<- 39
-number_sim_table<- 10000
-number_sim_bench<- 1000
+number_sim_table<- 100000
+number_sim_bench<- 5000
 target_c<- 0.25
 target_p<- 0.35
 all_sc<- NULL
