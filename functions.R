@@ -125,8 +125,8 @@ f<-function(a,pat_prob,clin_prob, pat_target, clin_target){
   1-((pat_prob/pat_target)^a + (clin_prob/clin_target)^a)^(1/a)
 }
 
-###############################distance########################################
-#Description - Euclidean distance from estimated C-DLT and P-DLT for a dose and a specified poinr on the utilty curve 
+###############################distance_x########################################
+#Description - Euclidean distance from estimated C-DLT and P-DLT for a dose and a specified point on the utility curve vary over x-coordinate 
 
 #Input: 
 #alpha - alpha of utility 
@@ -136,19 +136,38 @@ f<-function(a,pat_prob,clin_prob, pat_target, clin_target){
 # patient_target_DLT - target P-DLT rate
 # clinician_target_DLT - target C-DLT rate
 
-#Output: Numerical; The Euclidean distance between estimated (P-DLT rate, C-DLT rate) and (x,f(x)) where f defines the utility curve 
+#Output: Numerical; The minimal Euclidean distance between estimated (P-DLT rate, C-DLT rate) and (x,f(x)) where f defines the utility curve over varying x
 
-distance<-function(alpha, x, pred_x, pred_y,patient_target_DLT,clinician_target_DLT){
+distance_x<-function(alpha, x, pred_x, pred_y,patient_target_DLT,clinician_target_DLT){
   f_x<- uniroot(f, a=alpha, pat_prob=x, pat_target=patient_target_DLT, clin_target=clinician_target_DLT,interval= c(1.e-14, 1e04),
                 extendInt="yes")$root
   d<-sqrt((x-pred_x)^2+(f_x-pred_y)^2)
   return(d)
 }
 
+###############################distance_y########################################
+#Description - Euclidean distance from estimated C-DLT and P-DLT for a dose and a specified point on the utility curve vary over y-coordinate 
+
+#Input: 
+#alpha - alpha of utility 
+# y - point on the utility curve used to calculate distance 
+#pred_x - estimated P-DLT rate for dose
+#pred_y - estimated C-DLT rate for dose 
+# patient_target_DLT - target P-DLT rate
+# clinician_target_DLT - target C-DLT rate
+
+#Output: Numerical; The minimal Euclidean distance between estimated (P-DLT rate, C-DLT rate) and (x,f(x)) where f defines the utility curve over varying y
+
+distance_y<-function(alpha, y, pred_x, pred_y,patient_target_DLT,clinician_target_DLT){
+  x<- uniroot(f, a=alpha, clin_prob=y, pat_target=patient_target_DLT, clin_target=clinician_target_DLT,interval= c(1.e-14, 1e04),
+              extendInt="yes")$root
+  d<-sqrt((x-pred_x)^2+(y-pred_y)^2)
+  return(d)
+}
+
 ##############################trial_sim_original####################################
 #Description: Generate MTD selection for one generated trial under original PRO-CRM decision criteria 
 
-#Input:
 #u_skeleton - skeleton for C-DLT
 #v_skeleton - skeleton for P-DLT
 #sample - overall sample size of trial 
@@ -164,7 +183,7 @@ distance<-function(alpha, x, pred_x, pred_y,patient_target_DLT,clinician_target_
 #b - shape parameter for beta distribution 
 #target<- \tilde{\pi}_{CP}
 
-#Ouput: Vector; containing recommended MTD, proportion of patients assigned the MTD, and the proporion of patients overdosed. 
+#Output: Vector; containing recommended MTD, proportion of patients assigned the MTD, and the proportion of patients overdosed. 
 
 trial_sim_original<- function(u_skeleton, v_skeleton, sample,no_enrolled, phi, true_tox_c, true_tox_p, number_dosages, target_clin, target_pat,stopping_rule_prob, a, b, target){
   current_dose<-1
@@ -227,7 +246,10 @@ trial_sim_original<- function(u_skeleton, v_skeleton, sample,no_enrolled, phi, t
    p_c<-u_skeleton^est_c$maximum 
    p_p<-v_skeleton^est_p$maximum
    rec_dose<-min(which.min(abs(p_c-target_clin)), which.min(abs(p_p-target_pat)))
-  ifelse(rec_dose>max(M[,2]), current_dose<-max(M[,2])+1, current_dose<-rec_dose)
+  if(is.na(current_dose)==FALSE){
+    ifelse(rec_dose>max(M[,2]), current_dose<-max(M[,2])+1, current_dose<-rec_dose)
+  }
+  unlink(file.path("C:/Users/ealger/AppData/Local/Temp", "Rtmp*"), recursive = T)
   optimal_dose<- min(which.min(abs(true_tox_c-target_clin)), which.min(abs(true_tox_p-target_pat)))
   mtd_assigned<-sum(M[,2]==optimal_dose)/sample
   overdosed<- sum(M[,2]>optimal_dose)/sample
@@ -239,7 +261,6 @@ trial_sim_original<- function(u_skeleton, v_skeleton, sample,no_enrolled, phi, t
 ##############################trial_sim_utility####################################
 #Description: Generate MTD selection for one generated trial under U-PRO-CRM decision criteria 
 
-#Input:
 #u_skeleton - skeleton for C-DLT
 #v_skeleton - skeleton for P-DLT
 #alpha - alpha used to define the utility curve  
@@ -308,7 +329,9 @@ trial_sim_utility<- function(u_skeleton, v_skeleton, alpha, sample,no_enrolled, 
     #dose-finding decision 
     p_c<-u_skeleton^est_c$maximum 
     p_p<-v_skeleton^est_p$maximum
-    rec_dose<-which.min(mapply(function(p,c) optimise(distance, c(0,target_pat), alpha=alpha, pred_x= p, pred_y=c, patient_target_DLT=target_pat, clinician_target_DLT=target_clin)$objective, p=p_p, c=p_c))
+    rec_dose_x<-mapply(function(p,c) optimise(distance_x, c(0,target_pat), alpha=alpha, pred_x= p, pred_y=c, patient_target_DLT=target_pat, clinician_target_DLT=target_clin)$objective, p=p_p, c=p_c)
+    rec_dose_y<-mapply(function(p,c) optimise(distance_y, c(0,target_clin), alpha=alpha, pred_x= p, pred_y=c, patient_target_DLT=target_pat, clinician_target_DLT=target_clin)$objective, p=p_p, c=p_c)
+    rec_dose<-which.min(pmin(rec_dose_x, rec_dose_y))
     ifelse(rec_dose>max(M[,2]), current_dose<-max(M[,2])+1, current_dose<-rec_dose)
     val<-t(sapply(rep(current_dose, times=no_enrolled), function (k) time_to_dlt(k,true_tox_c, true_tox_p, phi)))
     M<-truncated_matrix(no_enrolled, val, M, current_dose)
@@ -318,11 +341,15 @@ trial_sim_utility<- function(u_skeleton, v_skeleton, alpha, sample,no_enrolled, 
    #dose-finding decision 
    p_c<-u_skeleton^est_c$maximum 
    p_p<-v_skeleton^est_p$maximum
-   rec_dose<-which.min(mapply(function(p,c) optimise(distance, c(0,target_pat), alpha=alpha, pred_x= p, pred_y=c, patient_target_DLT=target_pat, clinician_target_DLT=target_clin)$objective, p=p_p, c=p_c))
-  ifelse(rec_dose>max(M[,2]), current_dose<-max(M[,2])+1, current_dose<-rec_dose)
+   rec_dose_x<-mapply(function(p,c) optimise(distance_x, c(0,target_pat), alpha=alpha, pred_x= p, pred_y=c, patient_target_DLT=target_pat, clinician_target_DLT=target_clin)$objective, p=p_p, c=p_c)
+   rec_dose_y<-mapply(function(p,c) optimise(distance_y, c(0,target_clin), alpha=alpha, pred_x= p, pred_y=c, patient_target_DLT=target_pat, clinician_target_DLT=target_clin)$objective, p=p_p, c=p_c)
+   rec_dose<-which.min(pmin(rec_dose_x, rec_dose_y))
+     if(is.na(current_dose)==FALSE){
+    ifelse(rec_dose>max(M[,2]), current_dose<-max(M[,2])+1, current_dose<-rec_dose)
+   }
+  unlink(file.path("C:/Users/ealger/AppData/Local/Temp", "Rtmp*"), recursive = T)
   optimal_dose<- min(which.min(abs(true_tox_c-target_clin)), which.min(abs(true_tox_p-target_pat)))
   mtd_assigned<-sum(M[,2]==optimal_dose)/sample
   overdosed<- sum(M[,2]>optimal_dose)/sample
   return(c(current_dose, mtd_assigned,overdosed))
 }
-
