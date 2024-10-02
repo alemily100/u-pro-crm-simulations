@@ -1,6 +1,8 @@
 # u-pro-crm-simulations
 This repository contains the code used to simulate results for the paper **U-PRO-CRM: Designing patient-centred dose-finding trials using Patient-reported Outcomes**. 
 
+Alger, E., et al. "U-PRO-CRM: designing patient-centred dose-finding trials with patient-reported outcomes." ESMO open 9.7 (2024): 103626.
+
 ## Background 
 This project evaluates the operating characteristics of the novel U-PRO-CRM design under simulation scenarios where it is compared to the published PRO-CRM[1] design and a benchmark[2]. 
 
